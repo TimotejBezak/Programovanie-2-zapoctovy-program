@@ -20,6 +20,9 @@ class Plocha:
                 break
 
         for kom in self.komponenty:
+            kom.rotacia_update(self.zoom)
+
+        for kom in self.komponenty:
             if kom.bol_prave_polozeny():
                 print("bol prave polozeny")
                 self.vyries_pasovanie(kom)

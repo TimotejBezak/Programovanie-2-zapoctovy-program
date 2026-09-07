@@ -21,7 +21,7 @@ def generujeme_dieliky(obrazky):
     ret = []
     for i in range(len(obrazky)):
         for j in range(len(obrazky[0])):
-            ret.append(Komponenta([Dielik(obrazky[i][j], Pos(0,0), Pos(j, i))], Pos(random.randint(0,SIRKA_OBRAZOVKY-1),random.randint(0,VYSKA_OBRAZOVKY-1))))
+            ret.append(Komponenta([Dielik(obrazky[i][j], Pos(0,0), Pos(j, i))], Pos(random.randint(0,SIRKA_OBRAZOVKY-1),random.randint(0,VYSKA_OBRAZOVKY-1)), random.randint(0,3)))
     return ret
 
 def generuj(obrazok, sirka_pocet, vyska_pocet):
@@ -46,11 +46,5 @@ def generuj(obrazok, sirka_pocet, vyska_pocet):
 #   ten druhy dostane ich absolutnu poziciu na obrazovke, skonvertuje si ju do svojej pozicie, da ten objekt tam, ten prvy suflik/plocha to vymaze
 
 # bugs - pre nestvorcove nefunguje pasovanie
-
-
-# plan na najblizsiu chvilu:
-# vytvorit objekt *komponenta*, ktory bude mat v sebe nejake dieliky (uz spojene akoze)
-# spajanie budem detekovat komponentami, spravny pasujuci offset vyratam nejakym dfs
-# pripajanie tiez bude proste fungovat to bude len proste nasupanie vsetkych dielikov do jednej z nich, zo spravnym offsetom pozicie
 
 #otrasna nuda to je toto

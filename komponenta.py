@@ -3,13 +3,33 @@ from funkcie_navyse import is_mouse_over_image
 from position import Pos
 
 class Komponenta:
-    def __init__(self, dieliky, pos):
+    def __init__(self, dieliky, pos, rotacia):
         self.dieliky = dieliky
         self.pos = pos
+        self.rotacia = rotacia # od nula do tri, proste zvysok po deleni 4 z poctu rotacii
         self.drag_start_mys_pos = None # pozicia myse pri zacati dragovania
         self.drag_start_pos = None # self.pos v case zacatia dragovania
         self.dragujem = False # True kym drzim stlacene tlacidlo nad dielikom
         self.prave_polozeny = False
+        self.bol_pravy_klik_stlaceny_minule = False
+
+        for _ in range(rotacia):
+            self.otoc()
+
+    def otoc(self):#proste jedna otocka o devedesiat stupnov v smere hodinovych ruciciek
+        print("otacam")
+        self.rotacia = (self.rotacia + 1) % 4
+        for d in self.dieliky:
+            d.offset = d.offset.rotacia_doprava()
+            d.otoc_si_obrazok()
+
+    def rotacia_update(self, zoom):
+        if pygame.mouse.get_pressed()[2]:
+            if self.je_mys_nad_mnou(zoom) and not self.bol_pravy_klik_stlaceny_minule:
+                self.otoc()
+            self.bol_pravy_klik_stlaceny_minule = True
+        else:
+            self.bol_pravy_klik_stlaceny_minule = False
 
     def drag_update(self, zoom): #volat kazdy frame, ktory je mys nad tymto dielikom
         self.prave_polozeny = False
@@ -54,6 +74,8 @@ class Komponenta:
         return -1
 
     def offset_ze_pasujem_do_komponenty(self, kom): # offset komponenty kom od self taky, ze do mna pasuje, -1 ak sa to neda
+        if self.rotacia != kom.rotacia:
+            return -1 # urcite nepasuju ak maju rozne rotacie
         vys_pos_self = self.set_vyslednych_pozic()
         vys_pos_kom = kom.set_vyslednych_pozic()
         navstivene = set()
@@ -62,7 +84,7 @@ class Komponenta:
             return -1
 
         pasujuci_self, pasujuci_kom = self.najdi_svoj_dielik_podla_vysledneho_pos(pasujuci[0]), kom.najdi_svoj_dielik_podla_vysledneho_pos(pasujuci[1])
-        return pasujuci_self.offset + (pasujuci_kom.vysledny_pos - pasujuci_self.vysledny_pos)*self.dlzka_strany_dielika() - pasujuci_kom.offset # checknem este
+        return pasujuci_self.offset + (pasujuci_kom.vysledny_pos - pasujuci_self.vysledny_pos).rotacia_doprava_viac_krat(self.rotacia)*self.dlzka_strany_dielika() - pasujuci_kom.offset # checknem este
 
     def susedia_pozicie(self, pos): # vsetci mozny susedia danej pozicie
         smery = [Pos(0,1), Pos(0,-1), Pos(1,0), Pos(-1,0)]

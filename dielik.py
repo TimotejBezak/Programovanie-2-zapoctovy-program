@@ -6,3 +6,6 @@ class Dielik:
         self.image = image # proste obrazok
         self.offset = offset # offset od pozicie komponenty v ktorej je
         self.vysledny_pos = vysledny_pos # kam patri vramci celeho obrazku
+
+    def otoc_si_obrazok(self):
+        self.image = pygame.transform.rotate(self.image, -90)

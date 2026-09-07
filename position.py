@@ -28,3 +28,12 @@ class Pos:
 
     def vzdialenost_do(self, other):
         return math.sqrt((self.x - other.x)**2 + (self.y - other.y)**2)
+
+    def rotacia_doprava(self):
+        return Pos(-self.y, self.x)
+
+    def rotacia_doprava_viac_krat(self, pocet):
+        ret = Pos(self.x, self.y)
+        for _ in range(pocet):
+            ret = ret.rotacia_doprava()
+        return ret
