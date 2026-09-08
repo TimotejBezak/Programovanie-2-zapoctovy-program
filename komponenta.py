@@ -1,44 +1,47 @@
 import pygame
 from funkcie_navyse import is_mouse_over_image
 from position import Pos
+from konstanty import *
 
 class Komponenta:
     def __init__(self, dieliky, pos, rotacia):
         self.dieliky = dieliky
         self.pos = pos
-        self.rotacia = rotacia # od nula do tri, proste zvysok po deleni 4 z poctu rotacii
+        self.rotacia = 0 # od nula do tri, proste zvysok po deleni 4 z poctu rotacii
         self.drag_start_mys_pos = None # pozicia myse pri zacati dragovania
         self.drag_start_pos = None # self.pos v case zacatia dragovania
         self.dragujem = False # True kym drzim stlacene tlacidlo nad dielikom
         self.prave_polozeny = False
         self.bol_pravy_klik_stlaceny_minule = False
+        self.bol_lavy_klik_stlaceny_minule = False
 
         for _ in range(rotacia):
             self.otoc()
 
     def otoc(self):#proste jedna otocka o devedesiat stupnov v smere hodinovych ruciciek
-        print("otacam")
         self.rotacia = (self.rotacia + 1) % 4
         for d in self.dieliky:
             d.offset = d.offset.rotacia_doprava()
             d.otoc_si_obrazok()
 
     def rotacia_update(self, zoom):
-        if pygame.mouse.get_pressed()[2]:
-            if self.je_mys_nad_mnou(zoom) and not self.bol_pravy_klik_stlaceny_minule:
-                self.otoc()
-            self.bol_pravy_klik_stlaceny_minule = True
-        else:
-            self.bol_pravy_klik_stlaceny_minule = False
+        if pygame.mouse.get_pressed()[2] and self.je_mys_nad_mnou(zoom) and not self.bol_pravy_klik_stlaceny_minule:
+            self.otoc()
+            return True
+
+    def pravy_klik_update(self):
+        self.bol_pravy_klik_stlaceny_minule = pygame.mouse.get_pressed()[2]
+
+    def drag_start(self):
+        mys_pos = Pos(*pygame.mouse.get_pos())
+        self.dragujem = True
+        self.drag_start_mys_pos = mys_pos
+        self.drag_start_pos = self.pos
 
     def drag_update(self, zoom): #volat kazdy frame, ktory je mys nad tymto dielikom
         self.prave_polozeny = False
         if pygame.mouse.get_pressed()[0]:
             mys_pos = Pos(*pygame.mouse.get_pos())
-            if self.dragujem == False and self.je_mys_nad_mnou(zoom):
-                self.dragujem = True
-                self.drag_start_mys_pos = mys_pos
-                self.drag_start_pos = self.pos
             if self.dragujem:
                 self.pos = self.drag_start_pos + mys_pos - self.drag_start_mys_pos
         else:
@@ -46,19 +49,21 @@ class Komponenta:
                 self.prave_polozeny = True
             self.dragujem = False
 
+        self.bol_lavy_klik_stlaceny_minule = pygame.mouse.get_pressed()[0]
+
     def bol_prave_polozeny(self):
         return self.prave_polozeny
 
     def je_mys_nad_mnou(self, zoom):
         for d in self.dieliky: # kontrolujem vsetky svoje dieliky
-            if is_mouse_over_image(d.image, self.pos + d.offset, zoom):
+            if is_mouse_over_image(d.image, self.pos + d.offset - Pos(DIELIK_ANCHOR_POSITION, DIELIK_ANCHOR_POSITION), zoom):
                 return True
         return False
 
     def pozicie_dielikov_pre_kreslenie(self): # vrati vsetky pozicie svojich dielikov aj s obrazkami, aby sa nakreslili
         ret = []
         for d in self.dieliky:
-            ret.append((d.image, (self.pos + d.offset).tuple()))
+            ret.append((d.image, (self.pos + d.offset - Pos(DIELIK_ANCHOR_POSITION, DIELIK_ANCHOR_POSITION)).tuple()))
         return ret
 
     def set_vyslednych_pozic(self):
@@ -107,7 +112,6 @@ class Komponenta:
 
         sus_poz = self.susedia_pozicie(v)
         sus_die = self.susedia_dieliku(sus_poz, vys_pos_self)
-        # print(*sus_poz, "   medzera   ", *vys_pos_kom, "   medzera   ", *vys_pos_self)
         for sused in sus_poz:
             if sused.tuple() in vys_pos_kom: # je to dielik z tej druhej komponenty
                 return (v, sused)
@@ -115,11 +119,10 @@ class Komponenta:
                 bu = self.najdi_pasujucu_dvojicu(sused, navstivene, vys_pos_self, vys_pos_kom)
                 if bu != -1:
                     return bu
-
         return -1
 
     def dlzka_strany_dielika(self):
-        return self.dieliky[0].image.get_width() # pozor na nestvorcove
+        return self.dieliky[0].image.get_width() - 2*DIELIK_ANCHOR_POSITION # pozor na nestvorcove
 
     def spoj_sa_s(self, kom): # spojim sa s kom, kom treba vymazat potom, ratam s tym, ze uz je na spravnom mieste
         offset = kom.pos - self.pos

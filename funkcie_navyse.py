@@ -1,4 +1,5 @@
 import pygame
+import math
 
 def is_mouse_over_image(image, pos, scale): # vrati True, ak je mys nad netransparentnou castou obrazku
     mouse_x, mouse_y = pygame.mouse.get_pos()
@@ -11,3 +12,49 @@ def is_mouse_over_image(image, pos, scale): # vrati True, ak je mys nad netransp
         original_y = int(relative_y / scale)
         return image.get_at((original_x, original_y)).a > 0
     return False
+
+def circle_through_points(a, b, r): # ak sa to neda, tak zvolim najmensie r take aby sa to dalo
+    x1, y1 = a
+    x2, y2 = b
+
+    dx = x2 - x1
+    dy = y2 - y1
+
+    d = math.hypot(dx, dy)
+
+    if d > 2 * r:
+        r = d/2
+
+    # Midpoint of AB
+    mx = (x1 + x2) / 2
+    my = (y1 + y2) / 2
+
+    # Distance from midpoint to either possible center
+    h = math.sqrt(r*r - (d/2)**2)
+
+    # Unit vector perpendicular to AB
+    nx = -dy / d
+    ny = dx / d
+
+    # Two possible centers
+    centers = [
+        (mx + h * nx, my + h * ny),
+        (mx - h * nx, my - h * ny)
+    ]
+
+    result = []
+
+    for cx, cy in centers:
+        # (x-cx)^2 + (y-cy)^2 = r^2
+        #
+        # x^2 - 2cx*x + y^2 - 2cy*y = r^2 - cx^2 - cy^2
+        #
+        # x^2 + kx + y^2 + ly = m
+
+        k = -2 * cx
+        l = -2 * cy
+        m = r*r - cx*cx - cy*cy
+
+        result.append((k, l, m))
+
+    return result[0]

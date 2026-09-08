@@ -4,6 +4,7 @@ from plocha import Plocha
 from komponenta import Komponenta
 from position import Pos
 from generator import generuj
+from suflik import Suflik
 
 pygame.init()
 
@@ -17,8 +18,10 @@ skladacia_plocha = Plocha(1.0, Pos(0,0))
 
 obrazok_skibidi = pygame.image.load("skibidi mensie.png").convert_alpha()
 komponenty = generuj(obrazok_skibidi, 5, 5)
-for k in komponenty:
-    skladacia_plocha.pridaj_komponentu(k)
+# for k in komponenty:
+#     skladacia_plocha.pridaj_komponentu(k)
+
+suflik = Suflik(komponenty, Pos(0, VYSKA_ZACIATKU_SUFLIKU))
 
 running = True
 while running:
@@ -28,9 +31,20 @@ while running:
 
     skladacia_plocha.update()
 
+    suflik.update()
+
+    for kom in suflik.prelozit_na_plochu_komponenty():
+        skladacia_plocha.pridaj_komponentu(kom)
+
+    for kom in skladacia_plocha.prelozit_do_suflika_komponenty():
+        suflik.pridaj_komponentu(kom)
+
     screen.fill(FARBA_POZADIA)
 
     # scaled_image = pygame.transform.scale( image, (int(image.get_width() * scale), int(image.get_height() * scale)) )
+    for parametre in suflik.zobraz():
+        screen.blit(*parametre)
+
     for parametre in skladacia_plocha.zobraz():
         screen.blit(*parametre)
     pygame.display.flip()
