@@ -14,31 +14,41 @@ class Plocha:
     def pridaj_komponentu(self, komponenta):
         self.komponenty.append(komponenta)
 
-    def drag_update(self):
-        for idx, kom in enumerate(self.komponenty):
-            kom.drag_update(self.zoom)
-            if kom.je_mys_nad_mnou(self.zoom) and pygame.mouse.get_pressed()[0] and not self.mys_stlacena_minule:
-                kom.drag_start()
-                self.komponenty = [self.komponenty[idx]] + self.komponenty[:idx] + self.komponenty[idx+1:]#posuniem ho dopredu nech je nad vsetkym uplne
+    def drag_update(self, mys_realna_pozicia):
+        for kom in self.komponenty:
+            kom.drag_update(mys_realna_pozicia, self.zoom)
+            if kom.je_mys_nad_mnou(mys_realna_pozicia) and pygame.mouse.get_pressed()[0] and not self.mys_stlacena_minule:
+                kom.drag_start(mys_realna_pozicia)
+                self.navrch(kom)
                 break
         self.mys_stlacena_minule = pygame.mouse.get_pressed()[0]
 
-    def update(self): #volane kazdy frame
-        self.drag_update()
+    def update(self, mys_realna_pozicia, vyska_zaciatku_sufliku, mam_povolenie_dragovat_dieliky): #volane kazdy frame
+        if mam_povolenie_dragovat_dieliky:
+            self.drag_update(mys_realna_pozicia)
 
         for kom in self.komponenty:
-            if kom.rotacia_update(self.zoom):
+            if kom.rotacia_update(mys_realna_pozicia):
+                self.navrch(kom)
+                self.vyries_pasovanie(kom)
                 break
         for kom in self.komponenty:
             kom.pravy_klik_update()
 
         for kom in self.komponenty:
             if kom.bol_prave_polozeny():
-                if kom.pos.y > VYSKA_ZACIATKU_SUFLIKU:
-                    self.prelozit_do_suflika.append(kom)
-                    self.komponenty.remove(kom)
+                if kom.pos.y > vyska_zaciatku_sufliku:
+                    if len(kom.dieliky) == 1:
+                        self.prelozit_do_suflika.append(kom)
+                        self.komponenty.remove(kom)
+                    else:
+                        pass
                 else:
                     self.vyries_pasovanie(kom)
+
+    def navrch(self, kom):
+        idx = self.komponenty.index(kom)
+        self.komponenty = [self.komponenty[idx]] + self.komponenty[:idx] + self.komponenty[idx+1:]#posuniem ho dopredu nech je nad vsetkym uplne
 
     def prelozit_do_suflika_komponenty(self):
         ret = self.prelozit_do_suflika
@@ -64,5 +74,8 @@ class Plocha:
         ret = []
         for kom in reversed(self.komponenty): # self.dieliky su v poradi, ze prvy ma byt navrchu
             for d in kom.pozicie_dielikov_pre_kreslenie():
-                ret.append(d) # tu bude teda nejaky offset potom
+                priorita = 0 # ze v akom poradi sa to bude zobrazovat
+                if kom.je_dragovany():
+                    priorita = 3
+                ret.append((*d, priorita))
         return ret

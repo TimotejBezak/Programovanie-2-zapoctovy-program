@@ -14,6 +14,9 @@ class Pos:
     def __mul__(self, other):
         return Pos(self.x * other, self.y * other)
 
+    def __truediv__(self, other):
+        return Pos(self.x / other, self.y / other)
+
     def __str__(self):
         return f"Position({self.x}, {self.y})"
 

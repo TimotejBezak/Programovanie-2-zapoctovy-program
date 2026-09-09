@@ -1,15 +1,16 @@
 import pygame
 import math
 
-def is_mouse_over_image(image, pos, scale): # vrati True, ak je mys nad netransparentnou castou obrazku
-    mouse_x, mouse_y = pygame.mouse.get_pos()
-    width = int(image.get_width() * scale)
-    height = int(image.get_height() * scale)
+def is_mouse_over_image(image, pos, mys_realna_pozicia): # vrati True, ak je mys nad netransparentnou castou obrazku
+    image = pygame.transform.scale( image, (int(image.get_width() * 1/5), int(image.get_height() * 1/5)) )
+    mouse_x, mouse_y = mys_realna_pozicia.x, mys_realna_pozicia.y
+    width = int(image.get_width())
+    height = int(image.get_height())
     relative_x = mouse_x - pos.x
     relative_y = mouse_y - pos.y
     if 0 <= relative_x < width and 0 <= relative_y < height:
-        original_x = int(relative_x / scale)
-        original_y = int(relative_y / scale)
+        original_x = int(relative_x)
+        original_y = int(relative_y)
         return image.get_at((original_x, original_y)).a > 0
     return False
 
