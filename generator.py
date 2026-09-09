@@ -7,8 +7,6 @@ from dielik import Dielik
 from funkcie_navyse import circle_through_points
 import math
 
-#PLAN POSTUPU K VITAZSTVU
-
 def sekame_obrazok(obrazok, sirka_pocet, vyska_pocet):#kolko dielikov je to na sirku a kolko na vysku
     obrazok = pygame.transform.scale( obrazok, (SIRKA_STRANY_DIELIKU_PRE_OBRAZOK * POCET_DIELIKOV_NA_SIRKU_OBRAZKA, SIRKA_STRANY_DIELIKU_PRE_OBRAZOK * POCET_DIELIKOV_NA_SIRKU_OBRAZKA))
     sirka = obrazok.get_width() // sirka_pocet #pozor na nedelitelnost, neviem mozno by som si mohol dat na to pozor aby to bolo proste delitelne
@@ -44,14 +42,6 @@ def vylepsi_hrany(obrazky):
                 pos_sused = pos_teraz + smer
                 if 0 <= pos_sused.x < sirka_pocet and 0 <= pos_sused.y < vyska_pocet:
                     vylepsi_hranu(obrazky[y][x], obrazky[pos_sused.y][pos_sused.x], smer)
-
-# pixels = pygame.PixelArray(image)
-
-# for x in range(image.get_width()):
-#     for y in range(image.get_height()):
-#         pixels[x, y] = (255, 0, 0)
-
-# del pixels
 
 def vylepsi_hranu(obrazok1, obrazok2, smer): # smer je ze ktorym smerom je obrazok2 od obrazku1
     pixels1 = pygame.PixelArray(obrazok1)
@@ -98,12 +88,12 @@ def vylepsi_hranu(obrazok1, obrazok2, smer): # smer je ze ktorym smerom je obraz
     del pixels2
 
 class Hrana_medzi:
-    MIN_DLZKA_MEDZI_KONCAMI = 20*2
-    MAX_DLZKA_MEDZI_KONCAMI = 40*2
-    MIN_VYSKA_KONCA = -9*2
-    MAX_VYSKA_KONCA = 9*2
-    MIN_RADIUS = 17*2
-    MAX_RADIUS = 27*2
+    MIN_DLZKA_MEDZI_KONCAMI = int(SIRKA_STRANY_DIELIKU_PRE_OBRAZOK * 20*2/250)
+    MAX_DLZKA_MEDZI_KONCAMI = int(SIRKA_STRANY_DIELIKU_PRE_OBRAZOK * 40*2/250)
+    MIN_VYSKA_KONCA = int(SIRKA_STRANY_DIELIKU_PRE_OBRAZOK * (-9*2/250))
+    MAX_VYSKA_KONCA = int(SIRKA_STRANY_DIELIKU_PRE_OBRAZOK * 9*2/250)
+    MIN_RADIUS = int(SIRKA_STRANY_DIELIKU_PRE_OBRAZOK * 17*2/250)
+    MAX_RADIUS = int(SIRKA_STRANY_DIELIKU_PRE_OBRAZOK * 27*2/250)
     def __init__(self, dlzka):
         self.dlzka = dlzka
         self.koniec1 = random.randint(dlzka//2-self.MAX_DLZKA_MEDZI_KONCAMI//2, dlzka//2-self.MIN_DLZKA_MEDZI_KONCAMI//2)
@@ -148,32 +138,8 @@ class Hrana_medzi:
             ret[i] = not slovnik[-i]
         return ret
 
-#rozsekat obrazok na stvorceky, vygenerovat z toho Dielik objekty
-#kazdy dielik objekt bude mat suradnice kam pasuje - teda ze v kolkatom riadku, stlpci je vo vyslednom obrazku
-
-#tieto dieliky chcem nahodne rozmiestnit do suflika
-#suflik bude pre zaciatok proste grid dielikov z nejakymi rozostupmi
-#   implementovat ako nieco podobne ploche, teda inheritovat plochu mozno, ale nie tak celkom
-#   vylepsenia suflika: zoom, drag/posuvanie do boku, nastavitelny pocet riadkov
-
-#a Plocha bude mat funkciu na detekciu spojov (resp nieco co inherituje Plochu to bude mat)
-#    to chce fungovat tak, ze to bude riesit len posledny pohnuty dielik a vlastne to nechcem detekovat ked je dielik prave dragovany
-#    no hej ze dielik si bude pametat, ze ci prave ten jeden frame bol dropnuty, a vtedy to plocha overi
-#    ak to nastane, tak chcem tie objekty zmergeovat do jedneho, proste to nejako zmergeujem tie pngcka, nastavim vsetko tak ako ma byt - to znie ako dost pain ale velmi jednoduchy
-
-#ako funguje dragovanie zo suflika do plochy
-#   plocha aj suflik si vymenia navzajom dieliky dragnute mimo svojho uzemia (nejake edge casey ze ked dragujem mimo ale nie do toho druheho, ale to budem riesit lokalne, ze proste sa to do troch smerov nebude dat dragnut za nejaku hranicu)
-#   ten druhy dostane ich absolutnu poziciu na obrazovke, skonvertuje si ju do svojej pozicie, da ten objekt tam, ten prvy suflik/plocha to vymaze
-
-# bugs - pre nestvorcove nefunguje pasovanie
-# ze to set_at() je pomale, treba pouzivat pygame.pixelArray
-# ked taham dielik zo suflika a pod tym je nieco na ploche, tak sa taha aj to
+# bugs - priesvitne vecicky trosku pod dielikmi
 
 # oukej TODO list:
 # dokumentacia, mozno nejake skraslenie, povymazavanie nepotrebneho...
 # odovzdanie
-
-# male upgrady na ktore sa lowkey vykaslem:
-# ze dragnutie z suflika do plochy a naopak sa bude ratat vtedy ked cela plocha dielika tam bude (tam asi by som musel si pre kazdy dielik pametat koncovy pixel do kazdej strany)
-
-#otrasna nuda to je toto, no tie najnudnejsie casti ma len cakaju... hrozneee...

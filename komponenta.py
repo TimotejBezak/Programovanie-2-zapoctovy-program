@@ -18,13 +18,13 @@ class Komponenta:
         for _ in range(rotacia):
             self.otoc()
 
-    def otoc(self):#proste jedna otocka o devedesiat stupnov v smere hodinovych ruciciek
+    def otoc(self): # proste jedna otocka o devedesiat stupnov v smere hodinovych ruciciek
         self.rotacia = (self.rotacia + 1) % 4
         for d in self.dieliky:
             d.offset = d.offset.rotacia_doprava()
             d.otoc_si_obrazok()
 
-    def rotacia_update(self, mys_realna_pozicia):
+    def rotacia_update(self, mys_realna_pozicia): # volame kazdy frame, je to proste detekcia toho ci sa ma dielik otacat
         if pygame.mouse.get_pressed()[2] and self.je_mys_nad_mnou(mys_realna_pozicia) and not self.bol_pravy_klik_stlaceny_minule:
             self.otoc()
             return True
@@ -32,13 +32,13 @@ class Komponenta:
     def pravy_klik_update(self):
         self.bol_pravy_klik_stlaceny_minule = pygame.mouse.get_pressed()[2]
 
-    def drag_start(self, mys_realna_pozicia):
+    def drag_start(self, mys_realna_pozicia): # zaciatok dragovania, odteraz sa to bude spravat tak, ze to pojde na poziciu myse
         mys_pos = mys_realna_pozicia
         self.dragujem = True
         self.drag_start_mys_pos = mys_pos
         self.drag_start_pos = self.pos
 
-    def drag_update(self, mys_realna_pozicia, zoom): #volat kazdy frame, ktory je mys nad tymto dielikom
+    def drag_update(self, mys_realna_pozicia): # menime poziciu tak aby bola pod mysou, skonci sa to ked sa pusti drzanie myse
         self.prave_polozeny = False
         if pygame.mouse.get_pressed()[0]:
             mys_pos = mys_realna_pozicia
@@ -51,13 +51,13 @@ class Komponenta:
 
         self.bol_lavy_klik_stlaceny_minule = pygame.mouse.get_pressed()[0]
 
-    def bol_prave_polozeny(self):
+    def bol_prave_polozeny(self): # ci bola tato komponenta prave polozena, teda dragovana, a lave tlacidlo mysei prave pustene
         return self.prave_polozeny
 
-    def je_dragovany(self):
+    def je_dragovany(self): # ci prave teraz mys draguje dielik
         return self.dragujem
 
-    def je_mys_nad_mnou(self, mys_realna_pozicia):
+    def je_mys_nad_mnou(self, mys_realna_pozicia): # ci mys prekryva netransparentne casti obrazku komponenty
         for d in self.dieliky: # kontrolujem vsetky svoje dieliky
             if is_mouse_over_image(d.image, self.pos + d.offset - Pos(DIELIK_ANCHOR_POSITION, DIELIK_ANCHOR_POSITION), mys_realna_pozicia):
                 return True
@@ -69,13 +69,13 @@ class Komponenta:
             ret.append((d.image, (self.pos + d.offset - Pos(DIELIK_ANCHOR_POSITION, DIELIK_ANCHOR_POSITION))))
         return ret
 
-    def set_vyslednych_pozic(self):
+    def set_vyslednych_pozic(self): # vrati set vyslednych pozicii dielikov v komponente
         ret = set()
         for d in self.dieliky:
             ret.add(d.vysledny_pos.tuple())
         return ret
 
-    def najdi_svoj_dielik_podla_vysledneho_pos(self, vys_pos):
+    def najdi_svoj_dielik_podla_vysledneho_pos(self, vys_pos): # vratim dielik s danou vyslednou poziciou, ak taky je v tejto komponente, inak -1
         for d in self.dieliky:
             if d.vysledny_pos == vys_pos:
                 return d
@@ -125,7 +125,7 @@ class Komponenta:
         return -1
 
     def dlzka_strany_dielika(self):
-        return SIRKA_STRANY_DIELIKU_NAOZAJ# - 2*DIELIK_ANCHOR_POSITION # pozor na nestvorcove
+        return SIRKA_STRANY_DIELIKU_NAOZAJ
 
     def spoj_sa_s(self, kom): # spojim sa s kom, kom treba vymazat potom, ratam s tym, ze uz je na spravnom mieste
         offset = kom.pos - self.pos

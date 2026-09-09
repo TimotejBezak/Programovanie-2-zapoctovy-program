@@ -4,26 +4,25 @@ from konstanty import *
 from komponenta import Komponenta
 
 class Plocha:
-    def __init__(self, zoom, pos):
-        self.zoom = zoom
+    def __init__(self, pos):
         self.pos = pos
-        self.komponenty = []#vsetky dieliky v danej ploche, ich pozicie su relativne pozicie k ploche
+        self.komponenty = [] # vsetky dieliky v danej ploche, ich pozicie su relativne pozicie k ploche
         self.prelozit_do_suflika = []
         self.mys_stlacena_minule = False
 
-    def pridaj_komponentu(self, komponenta):
+    def pridaj_komponentu(self, komponenta): # prida komponentu do skladacej plochy
         self.komponenty.append(komponenta)
 
-    def drag_update(self, mys_realna_pozicia):
+    def drag_update(self, mys_realna_pozicia): # vyriesi sa vsetko dragovanie komponent
         for kom in self.komponenty:
-            kom.drag_update(mys_realna_pozicia, self.zoom)
+            kom.drag_update(mys_realna_pozicia)
             if kom.je_mys_nad_mnou(mys_realna_pozicia) and pygame.mouse.get_pressed()[0] and not self.mys_stlacena_minule:
                 kom.drag_start(mys_realna_pozicia)
                 self.navrch(kom)
                 break
         self.mys_stlacena_minule = pygame.mouse.get_pressed()[0]
 
-    def update(self, mys_realna_pozicia, vyska_zaciatku_sufliku, mam_povolenie_dragovat_dieliky): #volane kazdy frame
+    def update(self, mys_realna_pozicia, vyska_zaciatku_sufliku, mam_povolenie_dragovat_dieliky): #volame kazdy frame
         if mam_povolenie_dragovat_dieliky:
             self.drag_update(mys_realna_pozicia)
 
@@ -46,11 +45,11 @@ class Plocha:
                 else:
                     self.vyries_pasovanie(kom)
 
-    def navrch(self, kom):
+    def navrch(self, kom): # posunie danu komponentu dopredu, aby sa zobrazila navrchu
         idx = self.komponenty.index(kom)
-        self.komponenty = [self.komponenty[idx]] + self.komponenty[:idx] + self.komponenty[idx+1:]#posuniem ho dopredu nech je nad vsetkym uplne
+        self.komponenty = [self.komponenty[idx]] + self.komponenty[:idx] + self.komponenty[idx+1:]
 
-    def prelozit_do_suflika_komponenty(self):
+    def prelozit_do_suflika_komponenty(self): # vrati vsetky komponenty, ktore treba prelozit do suflika od posledneho volania tejto funkcie
         ret = self.prelozit_do_suflika
         self.prelozit_do_suflika = []                
         return ret
@@ -66,13 +65,13 @@ class Plocha:
                     kom.pos = kom_ideal_pos
                     self.spoj_komponenty(kom, kom_nadejnik)
 
-    def spoj_komponenty(self, k1, k2):
+    def spoj_komponenty(self, k1, k2): # spoji komponenty
         k1.spoj_sa_s(k2)
         self.komponenty.remove(k2)
 
-    def zobraz(self): #zobrazi vsetky dieliky na spravne pozicie
+    def zobraz(self): #zobrazi vsetky komponenty a ich dieliky na spravne pozicie
         ret = []
-        for kom in reversed(self.komponenty): # self.dieliky su v poradi, ze prvy ma byt navrchu
+        for kom in reversed(self.komponenty): # self.komponenty su v poradi, ze prvy ma byt navrchu
             for d in kom.pozicie_dielikov_pre_kreslenie():
                 priorita = 0 # ze v akom poradi sa to bude zobrazovat
                 if kom.je_dragovany():
